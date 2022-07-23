@@ -1,15 +1,28 @@
-import routeros_api
-import os
-from dotenv import load_dotenv
+from src.services.mikrotik import Mikrotik
 
-load_dotenv()
+class PPPService(Mikrotik):
 
-def ros_get_secrets(host):
+    def __init__(self, host):
+        super().__init__(host)
 
-    username = os.getenv("API_USER")
-    password = os.getenv("API_PASS")
+    
+    def get_secrets(self):
+        data = self.api.get_resource('/ppp/secret').get()
+        return data
 
-    api = routeros_api.RouterOsApiPool(host, username=username, password=password, plaintext_login=True).get_api()
-    data = api.get_resource('/ppp/secret').get()
+    def get_secret(self,username:str):
+        data = self.api.get_binary_resource('/ppp/secret/').call('print', {'numbers': username.encode()})
+        return data
 
-    return data
+
+    def get_actives(self):
+        data = self.api.get_resource('/ppp/active').get()
+        return data
+
+    def update_secret(self,**kwargs:dict):
+        data = self.api.get_binary_resource('/ppp/secret/').call('set', {**kwargs.encode()})
+        return data
+
+    def delete_secret(self,username:str):
+        self.api.get_binary_resource().call('/ppp/secret/remove', {'numbers': username.encode()})
+        return True
