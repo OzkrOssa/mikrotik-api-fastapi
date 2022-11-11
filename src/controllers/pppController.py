@@ -30,6 +30,7 @@ def delete_secret_user(IP:str, username:str):
 
 def get_secret_user(IP:str, username:str):
     data = PPPService(IP).get_secret(username)
+    print(data)
     return {
         "status": "success",
         "data": data,
